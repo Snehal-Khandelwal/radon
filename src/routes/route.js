@@ -44,12 +44,27 @@ let film = [ {
     res.send(film)
    })
 
-   router.get('/film/id',function(req,res){
-       let id= req.params.id
-       if(id<=film.length-1){
-           res.send(film[i].name)
+   router.get('/film1/:filmId',function(req,res){
+       let filmsID= req.params.filmId
+       console.log(filmsID)
+       let myFilm= film[filmsID-1]
+       if(filmsID<=film.length){
+        //    res.send(film[i-1])
+        res.send(myFilm)
+       }
+       else{
+           res.send("No movie exist with this ID")
        }
        
    })
+   router.get('/film2',function(req,res){
+    let i= req.query.id
+    if(i<=film.length){
+        res.send(film[i-1])
+    }
+    else{
+        res.send("No movie exist with this ID")
+    }
+    
+})
 module.exports = router;
-// adding this comment for no reason
