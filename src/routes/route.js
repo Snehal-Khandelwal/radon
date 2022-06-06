@@ -44,10 +44,12 @@ let film = [ {
     res.send(film)
    })
 
-   router.get('/film',function(req,res){
-       let id= req.query.id
-       requiredFilm= film.id;
-       res.send(requiredFilm)
+   router.get('/film/id',function(req,res){
+       let id= req.params.id
+       if(id<=film.length-1){
+           res.send(film[i].name)
+       }
+       
    })
 module.exports = router;
 // adding this comment for no reason
