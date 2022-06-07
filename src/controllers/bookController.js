@@ -9,14 +9,14 @@ const createBook= async function (req, res) {
 }
 
 const getBooksData= async function (req, res) {
-    let allBooks= await BookModel.find().select({ bookName : "The C Programming" , authorName :  "Robin Roy"});
+    let allBooks= await BookModel.find().select({ bookName : 1 , authorName :  1 , _id : 0});
     res.send({msg: allBooks})
 }
 
 
 const getBooksInYear = async function(req,res){
-    let requiredYear = req.body;
-    let yearWiseBook = await BookModel.find(requiredYear);
+    let requiredYear = req.body.year;
+    let yearWiseBook = await BookModel.find({year:requiredYear});
     res.send({msg : yearWiseBook})
 }
 const getPerticularBook = async function(req,res){
@@ -26,13 +26,13 @@ const getPerticularBook = async function(req,res){
 }
 
 const getXINRBook = async function(req,res){
-    let INRBooks = await BookModel.find({prices:{$or:[{indianPrice:"100INR"},{indianPrice:"200INR"},{indianPrice:"500INR"}]}});
+    let INRBooks = await BookModel.find({$or:[{"prices.indianPrice":{$eq:"100INR"}},{"prices.indianPrice":{$eq:"200INR"}},{"prices.indianPrice":{$eq:"500INR"}}]});
     res.send(INRBooks)
 }
 
 const getRandomBook = async function(req,res){
-    let randomBooks= await BookModel.find({$or:[{stockAvailable:true},{totalPages:$gt500}]});
-    res.send({msg: allBooks})
+    let randomBooks= await BookModel.find({$or:[{"stockAvailable":true},{"totalPages":{$gt:500}}]});
+    res.send({msg:randomBooks})
 }
 
 
