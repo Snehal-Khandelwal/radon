@@ -1,11 +1,13 @@
 const express = require('express');
+const RequestIp = require('@supercharge/request-ip')
+
 const router = express.Router();
 // const UserModel= require("../models/userModel.js")
 const UserController= require("../controllers/userController")
 const BookController= require("../controllers/bookController")
 const commonMW = require ("../middlewares/commonMiddlewares")
 
-router.get("/test-me", function (req, res) {
+router.get("/test-me",myMid, function (req, res) {
     res.send("My first ever api!")
 })
 
