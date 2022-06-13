@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
-const objectId = mongoose.schema.type.objectId
+const objectId = mongoose.Schema.Types.ObjectId
 
 const orderSchema = new mongoose.Schema( {
     user_id : {
          type:objectId,
          ref : "User"
     },
-    user_id : {
+    product_id : {
         type:objectId,
         ref : "Product"
    },

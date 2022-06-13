@@ -10,10 +10,12 @@ const userSchema = new mongoose.Schema( {
     age: Number,
     gender: {
         type: String,
-        enum: ["male", "female", "LGBTQ"] 
+        enum: ["male", "female", "other"] 
     },
-    isFreeAppUser: Boolean
-    
+    isFreeAppUser: {
+        type:Boolean,
+        Default: false
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema) 
