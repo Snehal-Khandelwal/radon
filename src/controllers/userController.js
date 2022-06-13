@@ -15,16 +15,17 @@ const createProduct= async function (req, res) {
 }
 
 const createOrder = async function (req,res){
-   let isFreeAppUser = req.header.isFreeAppUser
-   if(isFreeAppUser===true){
+   let isFreeAppUser = req.header.isfreeappuser
+   if(isFreeAppUser==true){
     req.body.isFreeAppUser = true;
     req.body.amount = 0
-
+    myOrder = await OrderModel.create(req.body)
+    req.send({msg:req.body})
    }
-   else if(isFreeAppUser===false){
+   else if(isFreeAppUser==false){
     productId = req.body.product_id
     userId= req.body.user_id
-    productPrice = await ProductModel.findbyId(productId).select({price:1, _id:0})
+    productPrice = await ProductModel.findById(productId).select({price:1, _id:0})
     amount = await UserModel.findById(userId).select({amount:1, _id:0})
     if(productPrice<amount){
         req.body.amount = amount - productPrice;
@@ -36,8 +37,9 @@ const createOrder = async function (req,res){
     else{
         req.send("You dont have sufficient Balance")
     }
-
+    
    }
+  
 }
  
 
