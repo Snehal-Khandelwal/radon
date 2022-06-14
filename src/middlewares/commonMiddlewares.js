@@ -31,10 +31,10 @@ const mid2= function(req,res,next){
 }
 
 const idCheck= async function(req,res,next){
-    myUser_id = req.body["user_id"]
-    myProduct_id = req.body["product_id"]
-     myProductId= await ProductModel.findById(myProduct_id)
-    myUserId= await UserModel.findById(myUser_id)
+   let myUser_id = req.body["user_id"]
+   let  myProduct_id = req.body["product_id"]
+   let  myProductId= await ProductModel.findById(myProduct_id)
+   let  myUserId= await UserModel.findById(myUser_id)
 if(myProductId && myUserId){
     next()
 }

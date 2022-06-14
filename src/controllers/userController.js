@@ -31,11 +31,11 @@ const createOrder = async function (req,res){
         req.body.amount = amount - productPrice;
         req.body.isFreeAppUser = false
         myOrder = await OrderModel.create(req.body)
-        req.send({msg:req.body})
+        res.send({msg:req.body})
 
     }
     else{
-        req.send("You dont have sufficient Balance")
+        res.send("You dont have sufficient Balance")
     }
     
    }
