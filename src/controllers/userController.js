@@ -3,9 +3,7 @@ const express = require("express");
 const userModel = require("../models/userModel");
 
 const createUser = async function (req, res) {
-   let data = req.body;
-   data.anything = "everything"
-   console.log(data)
+   let data = req.body
   let savedData = await userModel.create(data);
   res.send({ msg: savedData });
 }
