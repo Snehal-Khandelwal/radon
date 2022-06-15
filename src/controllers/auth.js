@@ -24,9 +24,19 @@ const isTokenValid = function (req,res,next){
   else{
     next()
   }
-//if token is not valid it will give error msg
-//if token is valid in the request it will let next program to execute
 }
+
+ const isAuthorised = async function (req,res,next){
+  userId = req.params.userId
+  let token = req.headers["x-auth-token"]
+  let decodedToken = jwt.verify(token, "Snehal-fn-rad-37QCI")
+if (userId==decodedToken.userId){
+  next()
+}
+else{
+  res.send("you are not authorized to take this action")
+}
+ }
 
 const isUserIdValid = async function (req,res,next){
     let userId = req.params.userId;
@@ -40,5 +50,6 @@ const isUserIdValid = async function (req,res,next){
     }
 }
 
+module.exports.isAuthorised =isAuthorised
 module.exports.isTokenPresent = isTokenPresent
 module.exports.isTokenValid = isTokenValid
