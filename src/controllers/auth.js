@@ -1,55 +1,71 @@
 const jwt = require("jsonwebtoken");
-const isTokenPresent = function (req,res,next){
-    let token = req.headers["x-auth-token"];
-    console.log(token)
-    if (!token)  {
-        return res.send({ status: false, msg: "token must be present" });
-    } 
-    else{
-              next()
-    }
-
-  //If no token is present in the request header return error
-  //if token is present in the request it will let next program to execute
-}
-
-const isTokenValid = function (req,res,next){
-    let token = req.headers["x-auth-token"]
-    let decodedToken = jwt.verify(token, "Snehal-fn-rad-37QCI");
-    console.log({decode:decodedToken})
-  if (!decodedToken){
-      
-      return res.send({ status: false, msg: "token is invalid" });
+const isTokenPresent = function (req, res, next) {
+ try{
+   let token = req.headers["x-auth-token"];
+  if (!token) {
+     res.status(400).send({ status: false, msg: "token must be present" });
   }
-  else{
+  else {
     next()
   }
-}
-
- const isAuthorised = async function (req,res,next){
-  userId = req.params.userId
-  let token = req.headers["x-auth-token"]
-  let decodedToken = jwt.verify(token, "Snehal-fn-rad-37QCI")
-if (userId==decodedToken.userId){
-  next()
-}
-else{
-  res.send("you are not authorized to take this action")
-}
+ }
+ catch(err){
+  res.status(500).send(err.message)
  }
 
-const isUserIdValid = async function (req,res,next){
-    let userId = req.params.userId;
-    let user = await userModel.findById(userId);
-    //Return an error if no user with the given id exists in the db
-    if (!user) {
-      return res.send("No such user exists");
-    }
-    else{
-        next()
-    }
 }
 
-module.exports.isAuthorised =isAuthorised
+const isTokenValid = function (req, res, next) {
+  try {
+    let token = req.headers["x-auth-token"]
+    let decodedToken = jwt.verify(token, "Snehal-fn-rad-37QCI");
+    if(decodedToken){
+      next()
+    }
+    else{
+      res.status(400).send("invalid token")
+    }
+  }
+  catch (err) {
+    res.status(500).send(err.message)
+  }
+}
+
+
+const isAuthorised = async function (req, res, next) {
+  try {
+    let userId = req.params.userId
+    let token = req.headers["x-auth-token"]
+    let decodedToken = jwt.verify(token, "Snehal-fn-rad-37QCI")
+    if (userId == decodedToken.userId) {
+      next()
+    }
+    else{
+      res.status(403).send("you are not authorised")
+    }
+  } catch (err) {
+    res.status(500).send()
+  }
+
+}
+
+const isUserIdValid = async function (req, res, next) {
+  try{
+  let userId = req.params.userId;
+  let user = await userModel.findById(userId);
+  //Return an error if no user with the given id exists in the db
+  if (!user) {
+    return res.send("No such user exists");
+  }
+  else {
+    next()
+  }}
+  catch(err){
+    res.status(500).send(err.message)
+  }
+}
+
+module.exports.isUserIdValid = isUserIdValid
+module.exports.isAuthorised = isAuthorised
 module.exports.isTokenPresent = isTokenPresent
 module.exports.isTokenValid = isTokenValid
