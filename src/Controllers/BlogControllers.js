@@ -35,7 +35,7 @@ const createBlog = async function (req, res) {
         const id = data.authorId
         const author = await AuthorModel.findOne({ _id: id })
         if (!author) return res.status(404).send({ status: false, message: "Author is not present" })
-        if (data.isPublished === true) {
+        if (data.isPublished == true) {
             data.publishedAt = new Date()
             const myBlog = await BlogsModel.create(data)
            return res.status(201).send({ status: true, Data: myBlog })
