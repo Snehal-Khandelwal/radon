@@ -33,6 +33,7 @@ const isValid = function (value) {
 const createAuthor = async function (req, res) {
     try {
         const data = req.body
+        if(!data) return res.status(400).send({msg:"Please Enter valid details"})
         //we know fname, lname, title,email and password are mandatory field so we have tried to valideate these things in proper format
         if (!isValid(data.fname))  return res.status(400).send({ msg: "fname is required" })
         if (!isValid(data.lname)) return res.status(400).send({ msg: "lname is required" })
@@ -42,7 +43,9 @@ const createAuthor = async function (req, res) {
             return res.status(400).send({ msg: "Invalid Title : Valid titles : Mr,Miss,Mrs" })
         }
         if (!validateEmail(data.email)) return res.status(400).send({ msg: "please enter valid email id" })
-        if (!validatePassword(data.password))  return res.status(400).send({msg: "A strong password.It should contain min 8 letter, with at least a symbol, upper and lower case letters and a number" })
+        const alreadyUsed = await AuthorModel.findOne({email:data.email})
+        if(alreadyUsed) return res.status(400).send({msg:"Email is already used"})
+        if (!validatePassword(data.password))  return res.status(400).send({msg: "A strong password needed.It should contain min 8 letter, with at least a symbol, upper and lower case letters and a number" })
         const myAuthor = await AuthorModel.create(data)
         return res.status(201).send({ status: true, Data: myAuthor })
     }catch (err) {res.status(500).send({ msg: err.message })}
@@ -59,7 +62,7 @@ const authorLogin = async function (req, res) {
     if (!author)return res.status(400).send({status: false,msg: "username or the password is not corerct", });
     let token = jwt.sign({authorId: author._id.toString()}, "Project-1-Blogging-site");
     res.status(200).setHeader("x-api-key", token);
-    res.status(200).send({ status: true, token: token })
+    res.status(200).send({ status: true, message: "login Successful", data:{token: token }})
     }catch(err){return res.status(500).send({ msg: err.message })}}
 
 

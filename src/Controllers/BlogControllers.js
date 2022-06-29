@@ -27,14 +27,15 @@ const Validator = function (value) {
 const createBlog = async function (req, res) {
     try {
         const data = req.body
-        if (!Validator(data.title)) return res.status(400).send({ message: "Please Enter the title which should starts with alphabates" })
-        if (!Validator(data.body)) return res.status(400).send({ message: "Please write something in the body which should start with alphabate" })
-        if (!Validator(data.category)) return res.status(400).send({ message: "Please enter the category which should start with alphabate" })
+        if(!data) return res.status(400).send({msg:"Please Enter valid details"})
+        if (!Validator(data.title)) return res.status(400).send({ msg: "Please Enter the title which should starts with alphabates" })
+        if (!Validator(data.body)) return res.status(400).send({ msg: "Please write something in the body which should start with alphabate" })
+        if (!Validator(data.category)) return res.status(400).send({ msg: "Please enter the category which should start with alphabate" })
         //we used following function to check whether the authorId is valid mongoDB id
         if (!mongoose.Types.ObjectId.isValid(data.authorId)) return res.status(400).send({ message: "Please enter Valid authorId" })
         const id = data.authorId
         const author = await AuthorModel.findOne({ _id: id })
-        if (!author) return res.status(404).send({ status: false, message: "Author is not present" })
+        if (!author) return res.status(404).send({ status: false, msg: "Author is not present" })
         if (data.isPublished == true) {
             data.publishedAt = new Date()
             const myBlog = await BlogsModel.create(data)
@@ -42,7 +43,7 @@ const createBlog = async function (req, res) {
         }
         const myBlog = await BlogsModel.create(data)
         return res.status(201).send({ status: true, Data: myBlog })
-    } catch (err) { return res.status(500).send(err.message) }
+    } catch (err) { return res.status(500).send({error:err.message}) }
 }
 
 //This API is for the fetching all the blogs with some filters,user will get all the present blog if no filter is applied
@@ -51,7 +52,7 @@ const getBlogs = async function (req, res) {
         let data = req.query
         let allBlogs = await BlogsModel.find({ $and: [data, { isPublished: true }, { isDeleted: false }] })
         if (allBlogs.length > 0) return res.status(200).send({ status: true, data: allBlogs })
-        return res.status(404).send({ status: false, message: "No Blogs Found" })
+        return res.status(404).send({ status: false, msg: "No Blogs Found" })
     } catch (err) { return res.status(500).send(err.message) }
 }
 
@@ -64,7 +65,34 @@ const updateBlog = async function (req, res) {
         let subcategory = data.subcategory
         let title = data.title
         let body = data.body
-        const updatedblog = await BlogsModel.findOneAndUpdate({ _id: blogId }, { title: title, body: body, isPublished: true, publishedAt: new Date() }, { new: true },)
+        let isPublished = data.isPublished;
+
+        if(isPublished === true){
+             let publishedAt = new Date();
+             const updatedblog = await BlogsModel.findOneAndUpdate({ _id: blogId , isDeleted:false}, { title: title, body: body,isPublished:isPublished, publishedAt:publishedAt }, { new: true })
+             if (!updatedblog) return res.status(404).send({ status: false, msg: "No such blog present" })
+             if (data.subcategory) {
+                 updatedblog.subcategory.push(subcategory)
+             }
+             if(data.tags){
+                 updatedblog.tags.push(tag)
+             }
+             updatedblog.save()//this is to save the changes we have made from line no 69 to 74
+             return res.status(200).send({ msg: true, data: updatedblog })
+        }
+        if(isPublished === false){
+            const updatedblog = await BlogsModel.findOneAndUpdate({ _id: blogId , isDeleted:false}, { title: title, body: body,isPublished:isPublished, $unset:{publishedAt:1} }, { new: true })
+            if (!updatedblog) return res.status(404).send({ status: false, msg: "No such blog present" })
+            if (data.subcategory) {
+             updatedblog.subcategory.push(subcategory)
+            }
+            if(data.tags){
+                updatedblog.tags.push(tag)
+            }
+            updatedblog.save()//this is to save the changes we have made from line no 69 to 74
+            return res.status(200).send({ msg: true, data: updatedblog })
+       }
+        const updatedblog = await BlogsModel.findOneAndUpdate({ _id: blogId , isDeleted:false, isPublished : true}, { title: title, body: body  }, { new: true })
         if (!updatedblog) return res.status(404).send({ status: false, msg: "No such blog present" })
         if (data.subcategory) {
             updatedblog.subcategory.push(subcategory)
@@ -73,7 +101,7 @@ const updateBlog = async function (req, res) {
             updatedblog.tags.push(tag)
         }
         updatedblog.save()//this is to save the changes we have made from line no 69 to 74
-        res.status(200).send({ msg: true, data: updatedblog })
+        return res.status(200).send({ msg: true, data: updatedblog })
     } catch (err) { res.status(500).send({ error: err.message }) }
 }
 
@@ -83,9 +111,9 @@ const deleteByParams = async function (req, res) {
     try {
         let blogId = req.params.blogId
         let blog = await BlogsModel.findOneAndUpdate({ _id: blogId, isDeleted: false }, { deletedAt: new Date(), isDeleted: true })
-       if (!blog) return res.status(404).send({ status: false, message: "Blog is not present" })
+       if (!blog) return res.status(404).send({ status: false, msg: "Blog is not present" })
         return res.status(200).send(" ")
-    } catch (err) { return res.status(500).send(err.message) }
+    } catch (err) { return res.status(500).send({error:err.message}) }
 }
 
 //in this API we are not using middleware to authorize, we have written the authorization inside the API only
@@ -98,15 +126,20 @@ const deleteByQuery = async function (req, res) {
         let token = req.headers["x-api-key"]
          let decodedToken = jwt.decode(token)
         if(!decodedToken) return res.status(400).send({status:false,msg:"Invalid Token"})
-        let Authors = await BlogsModel.find(data).select({ authorId: 1, _id: 0 })
-        if (Authors.length == 0) return res.status(404).send({ status: false, message: "No Such Blog present" })
-        data.authorId = decodedToken.authorId.toString()
-             await BlogsModel.updateMany(data, { $set:{isDeleted: true, isDeletedAt: new Date()} })
-            return res.status(200).send("")//since its a deleting request we are not sending beck any msg to the user we are just sending the status code so that user will understand the opertation is successful
+        let Blogs = await BlogsModel.find(data)
+        if(Blogs.length==0)return res.status(404).send({msg:"You have not written such blog "})
+        let myId = Blogs.map(blog =>  {
+               if(blog.authorId.toString() === decodedToken.authorId.toString()){
+                           return blog._id
+                }})
+                
+         await BlogsModel.updateMany({_id:{$in:myId}}, { $set:{isDeleted: true, deletedAt: new Date()} })
+        return res.status(200).send("blog has been deleted")
+            //since its a deleting request we are not sending beck any msg to the user we are just sending the status code so that user will understand the opertation is successful
         
     } catch (err) {
         // if(err.message==Invalide)
-        return res.status(500).send(err.message) }
+        return res.status(500).send({error:err.message}) }
 }
 
 

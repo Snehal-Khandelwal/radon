@@ -30,6 +30,7 @@ const isAuthorised = async function (req, res, next) {
     let authorId = requiredBlog.authorId
     let token = req.headers["x-api-key"]
     let decodedToken = jwt.decode(token)
+    console.log(decodedToken)
     if (authorId == decodedToken.authorId) {
         next()
     }
