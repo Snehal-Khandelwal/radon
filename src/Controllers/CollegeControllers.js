@@ -4,7 +4,7 @@ const InternModel = require("../Models/InternModels.js");
 function startUpperCase(x) {
     const a = x.split(" ");
     for (var i = 0; i < a.length; i++) {
-        a[i] = a[i].charAt(0).toUpperCase() + a[i].slice(1);
+        a[i] = a[i].charAt(0).toUpperCase() + a[i].slice(1).toLowerCase();
     }
     x = a.join(" ");
     return x
@@ -18,7 +18,8 @@ const college = async function (req, res) {
         let CollegeName = data.fullName;
         data.fullName = startUpperCase(CollegeName);
         let createCollege = await CollegeModel.create(data);
-        res.status(201).send({ status: true, data: createCollege })
+        let myResult = await CollegeModel.findById(createCollege._id).select({_id:0,__v:0})
+        res.status(201).send({ status: true, data: myResult })
     }
     catch (err) {
         res.status(500).send({ error: err.message })

@@ -28,8 +28,8 @@ const checkBody = async function(req,res,next){
 const validator1 = async function (req, res, next) {
     try {
         let name = req.body.name;
-        if (!x(name)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college in lower case" })
-        if (!name.match(re)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college in lower case" })
+        if (!x(name)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college" })
+        if (!name.match(re)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college" })
         let usedname = await CollegeModels.findOne({ name: name })
         if (usedname) return res.status(400).send({ status: false, message: "This name is already been used" })
 
@@ -72,6 +72,7 @@ const validator2 = async function (req, res, next) {
         if (!presentCollegeId) return res.status(400).send({ status: false, message: "collegeName not exist" })
 
         next();
+        
     } catch (err) {
         res.status(500).send({ error: err.message })
     }
