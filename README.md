@@ -35,7 +35,7 @@
 - Returns the college details for the requested college (Expect a query parameter by the name `collegeName`. This is anabbreviated college name. For example `iith`)
 - Returns the list of all interns who have applied for internship at this college.
 - The response structure should look like [this](#college-details)
-
+ 
 
 ## Testing 
 - To test these apis create a new collection in Postman named Project 2 Internship
