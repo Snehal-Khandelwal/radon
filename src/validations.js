@@ -31,7 +31,7 @@ const validator1 = async function (req, res, next) {
         if (!x(name)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college" })
         if (!name.match(re)) return res.status(400).send({ status: false, message: "Please enter name, It should be the abbrivation of fullName of your college" })
         let usedname = await CollegeModels.findOne({ name: name })
-        if (usedname) return res.status(400).send({ status: false, message: "This name is already been used" })
+        if (usedname) return res.status(409).send({ status: false, message: "This name is already been used" })
 
         let fullName = req.body.fullName;
         if (!x(fullName)) return res.status(400).send({ status: false, message: "Please enter fullName" })
@@ -58,18 +58,18 @@ const validator2 = async function (req, res, next) {
         if (!x(email)) return res.status(400).send({ status: false, message: "Please enter email" })
         if (!email.match(email1)) return res.status(400).send({ status: false, message: "Please Enter Valid email" })
         let usedemail = await InternModel.findOne({ email: email })
-        if (usedemail) return res.status(400).send({ status: false, message: "This emailId has already been used" })
+        if (usedemail) return res.status(409).send({ status: false, message: "This emailId has already been used" })
 
         let mobile = req.body.mobile;
         if (!mobile) return res.status(400).send({ status: false, message: "Please enter mobile" })
         if (!mobile.match(mobile1)) return res.status(400).send({ status: false, message: "Please Enter Valid Mobile Number" })
         let usedmobile = await InternModel.findOne({mobile:mobile})
-        if (usedmobile) return res.status(400).send({ status: false, message: "This mobile number has already been used" })
+        if (usedmobile) return res.status(409).send({ status: false, message: "This mobile number has already been used" })
 
         let collegeName = req.body.collegeName
         // if (!mongoose.Types.ObjectId.isValid(collegeId)) return res.status(400).send({ status: false, message: "Please Enter Valid collegeId" })
         let presentCollegeId = await CollegeModels.findOne({ name: collegeName })
-        if (!presentCollegeId) return res.status(400).send({ status: false, message: "collegeName not exist" })
+        if (!presentCollegeId) return res.status(404).send({ status: false, message: "collegeName not exist" })
 
         next();
         

@@ -31,9 +31,9 @@ const college = async function (req, res) {
 let getDetails = async function (req, res) {
     try {
         let collegeName = req.query.collegeName
-        if (!collegeName) { return res.status(400).send({ status: false, msg: "collgeName is required" }) }
         collegeName = collegeName.trim()
         collegeName = collegeName.toLowerCase()
+        if (!collegeName) { return res.status(400).send({ status: false, msg: "collgeName is required" }) }
         let findName = await CollegeModel.findOne({ name: collegeName })
         if (!findName) { return res.status(400).send({ status: false, msg: "collge does not exists" }) }
         let id = findName._id.toString()
