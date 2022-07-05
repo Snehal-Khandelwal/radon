@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const BlogModel = require('../Controllers/BlogControllers.js')
-const AuthorModel = require('../Controllers/AuthorControllers.js')
-const MW = require('../Middlewares/middlewares.js')
+const BlogModel = require('../controllers/blogControllers.js')
+const AuthorModel = require('../controllers/authorControllers.js')
+const MW = require('../middlewares/middlewares.js')
 
 
 router.post('/authors', AuthorModel.createAuthor )

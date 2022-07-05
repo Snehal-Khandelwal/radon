@@ -1,64 +1,47 @@
 const jwt = require("jsonwebtoken");
-const BlogsModel = require("../Models/BlogsModel.js");
+const BlogsModel = require("../models/blogsModel.js");
 
 
-//this function is for the purpose for the authentication
+//===========Authentication=====================//
 const isTokenValid = function (req, res, next) {
     try{
     let token = req.headers["x-api-key"]
     if(!token) return res.status(400).send("token is not present")
-    let decodedToken = jwt.decode(token)
-    if (!decodedToken) {
-        return res.status(400).send({ status: false, msg: "token is invalid" });
-    }
-    else {
+
+    let decodedToken =  jwt.verify(token, "Project-1-Blogging-site")
+    // if (!decodedToken)   return res.status(400).send({ status: false, msg: "token is invalid" });
+    req.tokenId = decodedToken.authorId
+
         next()
-    }
+    
 }catch (err) {
+    if( err.message=="invalid signature") return res.status(400).send({status: false , msg: "token is invalid"})
+    if( err.message=="invalid token") return res.status(400).send({status: false , msg: "token is invalid"})
     return res.status(500).send(err.message)
 }}
 
 
-//this token is for the purpose of authorisation
+//============Authorisation============//
 const isAuthorised = async function (req, res, next) {
     try{
-    BlogId = req.params.blogId;
-    let requiredBlog = await BlogsModel.findById(BlogId)
-    if(!requiredBlog){
-        return res.status(404).send("No such blog ")
-    }
+    let requiredBlog = await BlogsModel.findById(req.params.blogId)
+    if(!requiredBlog)  return res.status(404).send({status:false , msg:"No such blog"})
+
+
     let authorId = requiredBlog.authorId
-    let token = req.headers["x-api-key"]
-    let decodedToken = jwt.decode(token)
-    console.log(decodedToken)
-    if (authorId == decodedToken.authorId) {
-        next()
-    }
-    else {
-        return res.status(403).send("you are not authorized to take this action")//403 for forbiden request
-    }}catch (err) {
+    // let token = req.headers["x-api-key"]
+    // let decodedToken = jwt.verify(token, "Project-1-Blogging-site")
+    // console.log(decodedToken)
+    tokenId = req.tokenId
+    if (authorId != tokenId) return res.status(403).send({status:false , msg:"you are not authorized to take this action"})
+    
+      next()
+
+    }catch (err) {
         return res.status(500).send(err.message)
     }
 }
 
-//  const auth = async function (req,res,next){
-//     try{
-//     let data = req.query
-//     let token = req.headers["x-api-key"]
-//     let decodedToken = jwt.decode(token)
-//     let Authors = await BlogsModel.find(data).select({authorId:1,_id:0})
-//     let reqAuthorId = decodedToken.authorId
-//     for(let author of Authors){
-//     if (AuthorId == decodedToken.authorId) {
-//         next()
-//     } return res.send("you are not authorized to take this action")
-//     }}catch (err) {
-//         return res.status(500).send(err.message)
-//     }
-//  }
 
 
-
-
-module.exports.isTokenValid = isTokenValid
-module.exports.isAuthorised = isAuthorised
+module.exports = {isTokenValid,isAuthorised}
